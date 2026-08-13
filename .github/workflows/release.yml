@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: |
+          npm test
+          cargo test --manifest-path src-tauri/Cargo.toml
+
+      - name: Build and publish GitHub Release
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Spotray ${{ github.ref_name }}
+          releaseBody: Windows installers (NSIS + MSI). SmartScreen may warn on first download; this build is not Authenticode-signed.
+          generateReleaseNotes: true
+          releaseDraft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+
+  winget:
+    name: Submit to WinGet
+    needs: release
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.ref_name, '-') }}
+    steps:
+      - name: Require WINGET_TOKEN
+        if: ${{ secrets.WINGET_TOKEN == '' }}
+        run: |
+          echo "::error::Add a classic GitHub PAT (public_repo) as secret WINGET_TOKEN, and fork microsoft/winget-pkgs on this account."
+          exit 1
+
+      - uses: vedantmgoyal9/winget-releaser@main
+        with:
+          identifier: Kzu.Spotray
+          installers-regex: '\.(exe|msi)$'
+          release-tag: ${{ github.ref_name }}
+          token: ${{ secrets.WINGET_TOKEN }}
