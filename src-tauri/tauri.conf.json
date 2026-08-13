@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Spotray",
+  "version": "0.1.0",
+  "identifier": "com.kzu.spotray",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Spotray",
+        "width": 400,
+        "height": 560,
+        "minWidth": 360,
+        "minHeight": 560,
+        "resizable": true,
+        "fullscreen": false,
+        "backgroundThrottling": "disabled",
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,CalculateNativeWinOcclusion --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.scdn.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https: http:; media-src 'self' blob: mediastream: https:; connect-src 'self' ipc: http://ipc.localhost https: wss: ws:; worker-src 'self' blob:; child-src 'self' blob: https://sdk.scdn.co https://*.scdn.co https://*.spotify.com; frame-src 'self' blob: https://sdk.scdn.co https://*.scdn.co https://*.spotify.com",
+      "headers": {
+        "Permissions-Policy": "encrypted-media=(self \"https://sdk.scdn.co\"), autoplay=(self \"https://sdk.scdn.co\")"
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
